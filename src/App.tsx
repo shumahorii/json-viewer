@@ -1,35 +1,33 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import JsonInput from './components/JsonInput';
+import FileUploader from './components/FileUploader';
+import ClassDiagram from './components/ClassDiagram';
+import { transformUniversalJson, transformUniversalJsonWithEdges } from './utils/transformUniversalJson';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [jsonData, setJsonData] = useState<any | null>(null);
+
+  const handleJsonInput = (raw: any) => {
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      const transformed = transformUniversalJsonWithEdges(parsed);
+      console.log(transformed)
+      setJsonData(transformed);
+    } catch (err) {
+      alert('JSONの解析に失敗しました');
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <h1>クラス図ジェネレーター</h1>
+      <h2>📄 JSONを貼り付け</h2>
+      <JsonInput onJsonChange={handleJsonInput} />
+      <h2>📂 ファイルから読み込む</h2>
+      <FileUploader onLoad={handleJsonInput} />
+      {jsonData && <ClassDiagram data={jsonData} />}
+    </div>
+  );
+};
 
-export default App
+export default App;
